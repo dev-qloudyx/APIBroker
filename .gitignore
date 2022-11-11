@@ -7,3 +7,4 @@ logs
 media
 # local environment variables
 .env*
+docker-compose.yml
