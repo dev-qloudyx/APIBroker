@@ -1,0 +1,9 @@
+# MacOS
+.DS_Store
+# Python bytecode
+__pycache__
+# Django dynamic directories
+logs
+media
+# local environment variables
+.env*

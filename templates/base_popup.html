@@ -1,0 +1,23 @@
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    {% include '_head.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">    
+</head>
+<body>
+    <div class="content-section">
+        <form method="post">{% csrf_token %}
+            {{ form|crispy }}
+            <div class="form-group">
+                <button class="btn" type="submit">Guardar</button>
+            </div>
+        </form>
+    </div>
+    {% block specific %}{% endblock %}
+    {% include '_footer.html' %}
+</body>

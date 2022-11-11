@@ -1,0 +1,38 @@
+{% load static %}
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!-- Bootstrap CSS CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/b92dfff54e.js" crossorigin="anonymous"></script><!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"> -->
+
+<!-- jQuery CDN - Slim version (=without AJAX) -->
+<script src="{% static 'kendo/js/jquery.min.js' %}"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+<!-- Popper.JS -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+<!-- Kendo UI-->
+<link href="{% static 'kendo/styles/kendo.common-bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'kendo/styles/kendo.bootstrap.min.css' %}" rel="stylesheet">
+
+<!-- OCR A Extended Font -->
+<link href="//db.onlinewebfonts.com/c/fd6fa80f1e3345834599de891cca3f4c?family=OCR+A+Extended" rel="stylesheet" type="text/css"/>
+
+<script src="{% static 'kendo/js/kendo.all.min.js' %}"></script>
+<script src="{% static 'kendo/js/cultures/kendo.culture.pt-PT.min.js' %}"></script>
+<script src="{% static 'kendo/js/messages/kendo.messages.pt-PT.min.js' %}"></script>
+<script src="{% static 'kendo/js/messages/custom_messages.js' %}"></script>
+
+
+{% if title %}
+    <title>Atlas - {{ title }}</title>
+{% else %}
+    <title>Atlas</title>
+{% endif %}

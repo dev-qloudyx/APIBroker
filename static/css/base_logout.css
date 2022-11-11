@@ -1,0 +1,148 @@
+body {
+    background: #e3e3e3;
+    color: #333333;
+    margin-top: 5rem;
+  }
+  
+  h1, h2, h4, h5, h6 {
+    color: #444444;
+  }
+  
+  ul {
+    margin: 0;
+  }
+
+  .btn-outline-info{
+    color: #286989;
+    border-color: #286989;
+  }
+
+  .btn-outline-info:hover{
+    background-color: #286989;
+    border-color: #286989;
+    color: white;
+  }
+
+  a{
+    color: #286989;
+  }
+
+  a:hover{
+    color: #286989;
+  }
+
+  h3{
+    color: #286989;
+  }
+
+  label{
+    color: #2596be
+  }
+
+  legend {
+    color: #286989;
+  }
+  
+  .bg-steel {
+    /* background-color: #1d506a; */
+    background-color: #ffffff;
+  }
+  
+  .site-header .navbar-nav .nav-link {
+    color: #cbd5db;
+  }
+  
+  .site-header .navbar-nav .nav-link:hover {
+    color: #ffffff;
+  }
+  
+  .site-header .navbar-nav .nav-link.active {
+    font-weight: 500;
+  }
+  
+  .content-section {
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
+  
+  .article-title {
+    color: #444444;
+  }
+  
+  a.article-title:hover {
+    color: #428bca;
+    text-decoration: none;
+  }
+  
+  .article-content {
+    white-space: pre-line;
+  }
+  
+  .article-img {
+    height: 65px;
+    width: 65px;
+    margin-right: 16px;
+  }
+  
+  .article-metadata {
+    padding-bottom: 1px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e3e3e3
+  }
+  
+  .article-metadata a:hover {
+    color: #333;
+    text-decoration: none;
+  }
+  
+  .article-svg {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+  }
+  
+  .account-img {
+    height: 125px;
+    width: 125px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .account-heading {
+    font-size: 2.5rem;
+  }
+
+  .alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+table.table thead th::after {
+  font-family: "Font Awesome 5 Free";
+  font-style: normal;
+  font-variant-caps: normal;
+  font-variant-ligatures: normal;
+  font-weight: 900;
+  height: 16px;
+  line-height: 16px;
+  text-rendering: auto;
+  width: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+table.table thead th.orderable::after {
+  content: "\f0dc";
+}
+table.table thead th.asc.orderable::after {
+  content: "\f0de";
+}
+table.table thead th.desc.orderable::after {
+  content: "\f0dd";
+}
+
+.table-row {
+  cursor: pointer;
+}

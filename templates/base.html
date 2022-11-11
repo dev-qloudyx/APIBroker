@@ -1,0 +1,162 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include '_head.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    <link rel="icon" href="#" type="image/png" sizes="16x16">
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div class="sidebar-header" style="text-align: center;">
+                <a href="#">APP</a>
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="{% url 'users:register' %}">
+                        <i class="fas fa-user"></i>
+                        Registar
+                    </a>
+                </li>                
+            </ul>
+            <div class="d-none d-sm-none d-md-block" style="background-color: black;color: rgb(221, 221, 221); text-align: center; position:fixed; bottom: 0; text-align: center; width: 215px; font-size: 12px;">
+                <span style="color: rgb(229,86,84);">v. 22.05.03</span><br>
+                <a href="https://qloudyx.pt" target="_blank">
+                    &#169; {% now "Y" %}, eXcellerated by qloudyx.
+                </a>
+            </div>
+        </nav>
+
+        <!-- Page Content  -->
+
+        <div id="content">
+            <!-- <button type="button" id="sidebarCollapse" style="margin-left: -30px; margin-top: -13px; position: absolute; border-radius: 0px; 
+                            background-color: transparent; border: none; color: #464646;
+                                font-size: 45px;">
+                <i class="fas fa-caret-right"></i>
+                <span></span>
+            </button> -->
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <div>
+                        <a class="btn d-md-none" id="sidebarCollapse">
+                            <i class="fas fa-align-left"></i>
+                        </a>
+                        {% block nav %}{% endblock %}
+                    </div>
+                    <div>
+                        <a href="{% url 'users:profile' %}">
+                            <img class="rounded-circle" style="width: 35px; height: 35px;"
+                                src="{{ user.profile.image.url }}">
+                        </a>
+                        <a style="margin-right: 30px;" href="{% url 'users:profile' %}">{{ user.username }}</a>
+                        <button onclick="logOut()" class="btn btn-md"
+                            style="padding-left: 12px; padding-right: 12px;"><i class="fas fa-power-off"></i></button>
+
+                    </div>
+                </div>
+            </nav>
+            <div>
+                {% for message in messages %}
+                <div class="text-center alert alert-{{ message.tags }}">
+                    <i style="font-size: 20px;" class="fas fa-exclamation-circle"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% include '_footer.html' %}
+    <script id="jsLogoutTemplate" type="text/x-kendo-template">
+        <div>
+            <p>{{ user.username }}, a presente sessão será encerrada, confirma?</p>
+        </div>
+    </script>
+    <script>
+        var LogOutScripts = (function () {
+            // Instance stores a reference to the LogOutScripts
+            var instance;
+            // Dialog object
+            var dialog = $("<div />");
+
+            function init() {
+                dialog = dialog.kendoDialog({
+                    title: "Terminar sessão",
+                    content: kendo.template($("#jsLogoutTemplate").html()),
+                    closable: false,
+                    buttonLayout: "normal",
+                    actions: [
+                        {
+                            text: "Sim",
+                            action: function (e) {
+                                window.location.href = "{% url 'users:logout' %}";
+                                return true;
+                            }
+                        },
+                        {
+                            text: "Não",
+                            primary: true,
+                            action: function (e) {
+                                // Do something...
+                                // We must return true otherwise the modal will not close
+                                return true;
+                            }
+                        }]
+                }).data("kendoDialog");
+
+                return {
+
+                    open: function () {
+                        return dialog.open();
+                    },
+
+                    close: function () {
+                        return dialog.close();
+                    },
+
+                    getDialog: function () {
+                        return dialog;
+                    },
+
+                    isHidden: function () {
+                        return $(dialog.wrapper).is(":hidden");
+                    }
+                };
+            }
+
+            return {
+
+                start: function () {
+
+                    if (!instance) {
+                        instance = init();
+                    }
+
+                    return instance;
+                }
+
+            };
+        })();
+
+        function logOut() {
+            // Initialize or Start LogoutScripts
+            var logoutDialog = LogOutScripts.start();
+            if (logoutDialog != null) {
+                if (logoutDialog.isHidden()) {
+                    logoutDialog.open();
+                }
+            }
+            
+        }
+    </script>
+</body>
+
+</html>

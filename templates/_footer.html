@@ -1,0 +1,18 @@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+
+            var act = $('#sidebar').hasClass('active');
+            if (act) {
+                $('#content').css('margin-left','120px');
+            }else{
+                $('#content').css('margin-left','0px');
+            }
+            
+        });
+        $(".table-row").click(function() {
+            window.document.location = $(this).data("href");
+        });
+    });
+</script>
