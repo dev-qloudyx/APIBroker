@@ -8,7 +8,8 @@ django = "*"
 psycopg2-binary = "*"
 django-crispy-forms = "*"
 pillow = "*"
-
+djangorestframework = "*"
+httpie= "*"
 [dev-packages]
 
 [requires]
