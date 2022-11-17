@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'knox',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -184,8 +185,9 @@ LOGGING = {
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-LOGIN_REDIRECT_URL = 'users:profile'
-# LOGIN_REDIRECT_URL = 'users:redirect-login'
+# LOGIN_REDIRECT_URL = 'users:profile'
+LOGIN_REDIRECT_URL = 'api/'
+
 LOGIN_URL = 'users:login'
 LOGOUT_REDIRECT_URL = 'users:login'
 
@@ -202,5 +204,10 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'knox.auth.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 }

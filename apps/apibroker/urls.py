@@ -1,13 +1,14 @@
-app_name = "api_broker"
 
-from django.urls import re_path, path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from apps.apibroker import views
-from rest_framework.urlpatterns import format_suffix_patterns
 
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'cases', views.CaseViewSet,basename="case")
+router.register(r'users', views.UserViewSet,basename="user")
+
+# The API URLs are now determined automatically by the router.
 urlpatterns = [
-    path('caselist/', views.case_list.as_view()),
-    path('casedetail/<int:pk>/', views.case_detail.as_view()),
-    path('users/', views.UserList.as_view()),
-    path('users/<int:pk>/', views.UserDetail.as_view()),
+    path('', include(router.urls)),
 ]
-urlpatterns = format_suffix_patterns(urlpatterns)
