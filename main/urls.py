@@ -18,10 +18,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 
+app_name = "api"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.users.urls', namespace='users')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include('apps.apibroker.urls')),
-    path('api/auth/', include('knox.urls'))
+    path('api/auth/', include('knox.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # media files

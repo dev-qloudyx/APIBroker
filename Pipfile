@@ -11,6 +11,7 @@ pillow = "*"
 djangorestframework = "*"
 httpie = "*"
 django-rest-knox = "*"
+docutils = "*"
 [dev-packages]
 
 [requires]

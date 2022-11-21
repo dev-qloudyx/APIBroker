@@ -4,6 +4,9 @@ from apps.users.models import User
 # Create your models here.
 
 class Case(models.Model):
+    """
+    Stores case entry, related to :model:`users.user`.
+    """
     customer_key = models.CharField(max_length=100, default='')
     case_number = models.CharField(max_length=100, default='')
     plate_number = models.CharField(max_length=100, default='')

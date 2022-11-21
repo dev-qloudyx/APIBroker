@@ -6,7 +6,9 @@ from apps.users.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import viewsets
+from rest_framework.authentication import SessionAuthentication
 from knox.auth import TokenAuthentication
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -14,8 +16,12 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, HasAdminRole]
 
 class CaseViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+    """
     serializer_class = CaseSerializer
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
