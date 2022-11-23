@@ -1,4 +1,5 @@
 
+from apps.apibroker.cases import CaseSystem
 from apps.apibroker.models import Case
 from apps.apibroker.permissions import IsAuthenticated, HasAdminRole
 from apps.apibroker.serializers import CaseSerializer, UserSerializer
@@ -7,8 +8,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
-from knox.auth import TokenAuthentication
-
+from apps.knox.auth import TokenAuthentication
+from rest_framework import status
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -23,9 +24,28 @@ class CaseViewSet(viewsets.ModelViewSet):
     serializer_class = CaseSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
+    def create(self, request, *args, **kwargs):
+        from apps.apibroker.tasks import save_to_db
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        owner = self.request.user.id
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        dic = {
+            'owner':owner,
+            'customer_key':serializer.data['customer_key'],
+            'case_number':serializer.data['case_number'],
+            'plate_number':serializer.data['plate_number'],
+        }
+        kwargs['case_file'] = request.data['case_file']
+        filename = CaseSystem.save_case_disk(**kwargs)
+        dic['filename'] = filename
+        save_to_db.delay(**dic)
+        headers = self.get_success_headers(serializer.data)
+        return Response({'Response': 'Caso enviado', 'ID': dic['case_number']}, status=status.HTTP_201_CREATED, headers=headers)
+
+   # def perform_create(self, serializer):
+    #    serializer.save(owner=self.request.user)
 
     def get_queryset(self):
         return Case.objects.filter(owner=self.request.user.id)

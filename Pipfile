@@ -10,9 +10,14 @@ django-crispy-forms = "*"
 pillow = "*"
 djangorestframework = "*"
 httpie = "*"
-django-rest-knox = "*"
 docutils = "*"
+celery = "*"
+django-celery-beat = "*"
+django_celery_results = "*"
+cryptography = "*"
+
 [dev-packages]
+autopep8 = "*"
 
 [requires]
 python_version = "3.9"

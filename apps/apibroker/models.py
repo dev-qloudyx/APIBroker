@@ -1,5 +1,6 @@
 from django.db import models
 from apps.users.models import User
+from django.core.validators import FileExtensionValidator
 
 # Create your models here.
 
@@ -11,9 +12,11 @@ class Case(models.Model):
     case_number = models.CharField(max_length=100, default='')
     plate_number = models.CharField(max_length=100, default='')
     created = models.DateTimeField(auto_now_add=True)
-    case_file = models.FileField(upload_to='cases', blank=True, null=True)
+    case_file = models.FileField(upload_to='cases', blank=True, null=True, validators=[FileExtensionValidator(allowed_extensions=['xml','json'])])
     owner = models.ForeignKey(User, related_name='cases', on_delete=models.CASCADE,
                               verbose_name='Utilizador', blank=True, null=True)
+
+    
     class Meta:
         ordering = ['created']
 

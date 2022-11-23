@@ -6,7 +6,7 @@ from apps.apibroker import views
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
 router.register(r'cases', views.CaseViewSet,basename="case")
-#router.register(r'users', views.UserViewSet,basename="user")
+router.register(r'users', views.UserViewSet,basename="user")
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [

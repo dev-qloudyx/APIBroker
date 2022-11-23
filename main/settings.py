@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
     'rest_framework',
-    'knox',
+    'apps.knox.apps.KnoxConfig',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -208,7 +210,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'knox.auth.TokenAuthentication',
+        'apps.knox.auth.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
 }
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+CELERY_TIMEZONE = "Europe/Lisbon"
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
