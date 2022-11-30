@@ -64,8 +64,11 @@ class LoginView(APIView):
         user_logged_in.send(sender=request.user.__class__,
                             request=request, user=request.user)
         data = self.get_post_response_data(request, token, instance)
+        object = AuthToken.objects.get(digest=instance.digest)
+
         dic = {
-            'Expiração': data['expiry'],
+            'CreatedDate': object.created,
+            #'Expiração': data['expiry'],
             'Token': data['token']
         }
         return Response(dic)

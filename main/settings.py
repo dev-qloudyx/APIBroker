@@ -190,7 +190,7 @@ LOGGING = {
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # LOGIN_REDIRECT_URL = 'users:profile'
-LOGIN_REDIRECT_URL = 'api/'
+LOGIN_REDIRECT_URL = 'api/case/list/'
 
 LOGIN_URL = 'users:login'
 LOGOUT_REDIRECT_URL = 'users:login'

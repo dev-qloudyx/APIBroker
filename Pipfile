@@ -15,6 +15,7 @@ celery = "*"
 django-celery-beat = "*"
 django_celery_results = "*"
 cryptography = "*"
+python-magic = "*"
 
 [dev-packages]
 autopep8 = "*"

@@ -6,6 +6,9 @@ from apps.apibroker.cases import CaseSystem
 def save_to_db(**kwargs):
     return CaseSystem.create_case(**kwargs)
 
+@shared_task
+def update_to_db(**kwargs):
+    return CaseSystem.update_case(**kwargs)
 
 # @shared_task(bind=True)
 # def execute(self, *args, **kwargs):
