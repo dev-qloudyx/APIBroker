@@ -18,6 +18,7 @@ class Case(models.Model):
     owner = models.ForeignKey(User, related_name='cases', on_delete=models.CASCADE,
                               verbose_name='Utilizador', blank=True, null=True)
     case_file = models.FileField(upload_to='cases', blank=True, null=True, validators=[validate_file])
+    binary = models.BinaryField(blank=True, null=True)
     
     class Meta:
         ordering = ['created']
@@ -26,5 +27,5 @@ class Case(models.Model):
         return f"{self.case_number} - {self.plate_number} - {self.customer_key}"
 
 class FileAttachment(models.Model):
-    file_attachment = models.FileField(upload_to='cases', blank=True, null=True)
+    file_attachment = models.FileField(upload_to='cases/attachments/', blank=True, null=True)
     case = models.ForeignKey(Case, related_name='attachment', on_delete=models.CASCADE, verbose_name='Anexos', blank=True, null=True)

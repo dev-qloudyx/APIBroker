@@ -2,20 +2,20 @@ import magic
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
 
-def validate_attachment(value):
+def validate_attachment(attachments):
     lista = []
-    content_types=('application/xml','application/json', 'application/pdf', 'image/png')
-    for i in value:
-        filetype = magic.from_buffer(i.read(), mime=True)
+    check = True
+    content_types=('application/xml','application/json', 'application/pdf', 'image/png', 'text/plain')
+    for attachment in attachments:
+        filetype = magic.from_buffer(attachment.read(), mime=True)
         if not filetype in content_types:
-            lista.append(False)
-            msg = f"File Not Allowed{i}: {filetype} not in allowed content types: {content_types}"
+            msg = f"File [{attachment}:{filetype}] Not Allowed in content types"
             lista.append(msg)
-            return lista
+            check = False
+    return lista, check, content_types
     
-
+    
 @deconstructible
 class FileValidator(object):
     error_messages = {

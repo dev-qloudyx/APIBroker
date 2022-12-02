@@ -11,6 +11,15 @@ class CaseSystem():
 
     fs = FileSystemStorage()
     CASE_PATH = os.path.join(fs.path('cases'), '')
+    CASE_ATTACHMENT_PATH = os.path.join(fs.path('attachments'), '')
+
+    def create_folder(directory):
+        pathExist = os.path.exists(directory)
+        if not pathExist:
+            try:
+                os.makedirs(directory)
+            except OSError as error:
+                return error
 
     def generate_kwargs(*args,**kwargs):
         kwargs['owner'] = args[0]
@@ -21,12 +30,23 @@ class CaseSystem():
         kwargs['update'] = args[3]
         return kwargs
 
-    def filename_generator(file):
+    def filename_generator(file, attachment, **kwargs):
         date = datetime.now().strftime("%Y%m%d%H%M%S%f")
         code_rand = uuid.uuid4().hex
         filename = "%s%s_%s" % (code_rand, date, file)
-        name = CaseSystem.fs.save(os.path.join(CaseSystem.CASE_PATH,
-                                                filename), file) 
+        customer_key = kwargs['customer_key']
+        directory_case = os.path.join(CaseSystem.CASE_PATH,
+                                                    customer_key)
+        directory_attachment = os.path.join(CaseSystem.CASE_ATTACHMENT_PATH,
+                                                    customer_key)
+        # Save Files into respective folders
+        if(attachment):
+            CaseSystem.create_folder(directory_attachment)
+            name = CaseSystem.fs.save(os.path.join(directory_attachment,filename), file)
+        else:
+            CaseSystem.create_folder(directory_case)
+            name = CaseSystem.fs.save(os.path.join(directory_case,
+                                                    filename), file)
         return name
 
     def save_files(**kwargs):
@@ -45,18 +65,22 @@ class CaseSystem():
                     for i in case_attachment:
                         CaseSystem.fs.delete(str(i.file_attachment)) # Remove Attachment's Files from system storage
         
-        case_filename = CaseSystem.filename_generator(files[0]) # Proceed to generate new filename for the case file     
+        case_filename = CaseSystem.filename_generator(files[0], False, **kwargs) # Proceed to generate new filename for the case file   
         for f in files_attachment:
-            name = CaseSystem.filename_generator(f) # Proceed to generate new filenames for attachment's
+            name = CaseSystem.filename_generator(f, True, **kwargs) # Proceed to generate new filenames for attachment's
             case_list_attachment.append(name)
         return [case_filename, case_list_attachment]
 
     def create_case(**kwargs):
         case_file = kwargs['filename'][0]
         files_attachments = kwargs['filename'][1]
+    
+        with open(CaseSystem.fs.path(case_file), "rb") as file:
+            binary = bytes(file.read())
+
         user = User.objects.get(id=kwargs['owner'])
         case = Case.objects.create(customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
-                            plate_number=kwargs['plate_number'], owner=user, case_file=case_file)
+                            plate_number=kwargs['plate_number'], owner=user, case_file=case_file, binary=binary)
         
         for f in files_attachments:
             attachment = FileAttachment(file_attachment=f, case_id=case.id)
