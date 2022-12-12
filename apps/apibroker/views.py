@@ -23,7 +23,7 @@ class FileIdViewSet(viewsets.GenericViewSet):
     This viewset provides only `retrieve`.
     """
     serializer_class = FileAttachmentSerializer
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, pk=None):
@@ -51,7 +51,7 @@ class CaseIdViewSet(viewsets.GenericViewSet):
     This viewset provides only `retrieve`.
     """
     serializer_class = CaseIdSerializer
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['case_file', 'case_number',
@@ -87,7 +87,7 @@ class CaseViewSet(viewsets.ModelViewSet):
     This viewset provides `list`, `create`, `retrieve`, `home` .
     """
     serializer_class = CaseSerializer
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['case_file', 'case_number',
