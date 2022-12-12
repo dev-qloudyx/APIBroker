@@ -1,5 +1,4 @@
 from apps.apibroker.case import CaseSystem, CaseHelper
-from apps.apibroker.models import Case
 from apps.apibroker.permissions import IsAuthenticated, HasAdminRole
 from apps.apibroker.serializers import (
     CaseSerializer, UserSerializer, CaseIdSerializer, FileAttachmentSerializer, CasePkSerializer, CaseListSerializer)
@@ -33,12 +32,12 @@ class FileIdViewSet(viewsets.GenericViewSet):
         if request.method == "POST":
             output = request.data.get('output')
         if (pk):
-            file_attachment = CaseHelper.get_case_pk(id=pk, owner=request.user)
+            file_attachment = CaseHelper.get_case_pk(id=pk, owner=request.user) # Data retrieve
         if (file_attachment):
             serializer = FileAttachmentSerializer(
-                instance=file_attachment, many=True, context={'request': request})
+                instance=file_attachment, many=True, context={'request': request}) # Data serialization
             binary = CaseSystem.generate_case(
-                binary=file_attachment[0].binary, attachment=True, doc_type=doc_type, output=output)
+                binary=file_attachment[0].binary, attachment=True, doc_type=doc_type, output=output) # Data retrieve
             if (serializer.data and binary):
                 return Response({"resultCode": 1, "case": {'case_file': binary}}, status=status.HTTP_200_OK)
             else:
@@ -64,18 +63,18 @@ class CaseIdViewSet(viewsets.GenericViewSet):
         dict = {'owner': owner}
         if (request.data.get('plate_number') and not request.data.get('case_number')):
             dict['plate_number'] = request.data.get('plate_number')
-            case = CaseHelper.get_case_by_filter(**dict)
+            case = CaseHelper.get_case_by_filter(**dict) # Data retrieve
         elif (request.data.get('case_number') and not request.data.get('plate_number')):
             dict['case_number'] = request.data.get('case_number')
-            case = CaseHelper.get_case_by_filter(**dict)
+            case = CaseHelper.get_case_by_filter(**dict) # Data retrieve
         elif (request.data.get('plate_number') and request.data.get('case_number')):
             dict['plate_number'] = request.data.get('plate_number')
             dict['case_number'] = request.data.get('case_number')
-            case = CaseHelper.get_case_by_filter(**dict)
+            case = CaseHelper.get_case_by_filter(**dict) # Data retrieve
         else:
             case = None
         serializer = CaseIdSerializer(
-            instance=case, many=True, context={'request': request})
+            instance=case, many=True, context={'request': request}) # Data serialization
 
         if (serializer.data and case):
             return Response({"resultCode": 1, "Result": serializer.data[0]}, status=status.HTTP_200_OK)
@@ -97,9 +96,9 @@ class CaseViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         from apps.apibroker.tasks import save_to_db
-        serializer = self.get_serializer(data=request.data)
-        check_serializer = serializer.is_valid(raise_exception=False)
-        check_base64 = CaseSystem.isbase64(request.data['case_file'])
+        serializer = self.get_serializer(data=request.data) # Data serialization
+        check_serializer = serializer.is_valid(raise_exception=False) # Validation
+        check_base64 = CaseSystem.isbase64(request.data['case_file']) # Validation
         headers = self.get_success_headers(serializer.data)
         kwargs['owner'] = self.request.user.id
         for i in [element for element in request.data]:
@@ -109,7 +108,7 @@ class CaseViewSet(viewsets.ModelViewSet):
         elif not check_base64:
             return Response({'resultCode': 0, 'errorDescription': ['Not Base64 encoded...']}, status=status.HTTP_400_BAD_REQUEST, headers=headers)
         else:
-            save_to_db.delay(**kwargs)
+            save_to_db.delay(**kwargs) # Task for Data Creation
             return Response({"resultCode": 1}, status=status.HTTP_201_CREATED, headers=None)
 
     def home(self, request):
@@ -118,7 +117,7 @@ class CaseViewSet(viewsets.ModelViewSet):
     def list(self, request):
         case = CaseHelper.get_case_list(role=request.user)
         serializer = CaseListSerializer(
-            instance=case, many=True, context={'request': request})
+            instance=case, many=True, context={'request': request}) # Data serialization
         if (serializer.data and self.request.user.role == 1):
             return Response({"resultCode": 1, "Result": serializer.data}, status=status.HTTP_200_OK)
         elif (serializer.data and not self.request.user.role == 1):
@@ -137,9 +136,9 @@ class CaseViewSet(viewsets.ModelViewSet):
             if request.method == "POST":
                 output = request.data.get('output')
             binary = CaseSystem.generate_case(
-                binary=case[0].binary, attachment=False, doc_type=None, output=output)
+                binary=case[0].binary, attachment=False, doc_type=None, output=output) # Data retrieve
             serializer = CasePkSerializer(
-                instance=case, many=True, context={'request': request})
+                instance=case, many=True, context={'request': request}) # Data serialization
             copy_serializer = serializer.data
             copy_serializer[0]['binary'] = binary
             if (binary):

@@ -8,9 +8,11 @@ from apps.users.models import User
 from apps.apibroker.file_validator import data_type
 from django.core.files.storage import FileSystemStorage
 from dicttoxml import dicttoxml
-from xml.dom.minidom import parseString
+from xml.dom.minidom import parseString  # pretty xml
 
 class CaseHelper():
+
+    # Data Retrieve
     def get_case_list(*args, **kwargs):
         if kwargs['role'].role == 1:
             try:
@@ -26,6 +28,8 @@ class CaseHelper():
             except:
                 case = False
                 return case
+
+    # Data Retrieve
     def get_case_by_filter(*args, **kwargs):
         try:
             case = Case.objects.filter(**kwargs).order_by('-created')
@@ -34,7 +38,8 @@ class CaseHelper():
             case = False
             return case
 
-    def get_case_pk(*args,**kwargs):
+    # Data Retrieve
+    def get_case_pk(*args, **kwargs):
         try:
             case = Case.objects.filter(id=kwargs['id'], owner=kwargs['owner'])
             return case
@@ -44,10 +49,7 @@ class CaseHelper():
 
 class CaseSystem():
 
-    fs = FileSystemStorage()
-    CASE_PATH = os.path.join(fs.path('cases'), '')
-    CASE_ATTACHMENT_PATH = os.path.join(fs.path('attachments'), '')
-
+    # Data Conversion
     def to_xml(*args, **kwargs):
         """
         Convert dict to xml
@@ -63,6 +65,7 @@ class CaseSystem():
         except:
             return False
 
+    # Data Conversion
     def to_json(*args, **kwargs):
         """
         Convert dict to json
@@ -79,23 +82,27 @@ class CaseSystem():
         except:
             return False
 
+    # Data Validation
     def isbase64(binary):
         """
         Check if original file is b64 encoded
         """
         try:
-            decoded = base64.b64decode(binary)
-            encoded = base64.b64encode(decoded).decode("utf-8")
+            decoded = base64.b64decode(binary)  # Data Validation
+            encoded = base64.b64encode(decoded).decode(
+                "utf-8")  # Data Validation
             return encoded == binary
         except Exception:
             return False
 
+    # Data retrieve
     def search(doc_type, dict, key):
         """
         Filter the Attachment Node by doc_type value
         """
         return [element for element in dict if element[key].lower() == doc_type.lower()]
 
+    # Data Generation
     def generate_case(*args, **kwargs):
         """
         Generate an file without any attachments
@@ -104,20 +111,23 @@ class CaseSystem():
         """
         xml_mime = ['application/xml', 'text/xml']
         json_mime = ['application/json']
-        file_type, file_enconding = data_type(kwargs['binary']) # Return mimetype and file encoding
+        # Return mimetype and file encoding
+        file_type, file_enconding = data_type(kwargs['binary'])
         doc_type = kwargs['doc_type']
         output = kwargs['output']
 
         # Convert Xml or Json to python dict with the right codec from original file
         if file_type in xml_mime:
             try:
-                dict = xmltodict.parse(kwargs['binary'], encoding=file_enconding)
+                dict = xmltodict.parse(
+                    kwargs['binary'], encoding=file_enconding)  # Data Conversion
             except:
                 return False
         elif file_type in json_mime:
             try:
-                data_json = bytes(kwargs['binary']).decode(file_enconding)
-                dict = json.loads(data_json)
+                data_json = bytes(kwargs['binary']).decode(
+                    file_enconding)  # Data Conversion
+                dict = json.loads(data_json)  # Data Conversion
             except:
                 return False
         else:
@@ -135,10 +145,12 @@ class CaseSystem():
                     if not list_of_attachments:
                         return False
                     elif output is not None and 'xml' == output.lower():
-                        base64_xml = CaseSystem.to_xml(dict=dict)
+                        base64_xml = CaseSystem.to_xml(
+                            dict=dict)  # Data Conversion
                         return base64_xml
                     elif output is None or 'json' == output.lower():
-                        base64_json = CaseSystem.to_json(dict=dict)
+                        base64_json = CaseSystem.to_json(
+                            dict=dict)  # Data Conversion
                         return base64_json
                 else:
                     return False
@@ -151,14 +163,17 @@ class CaseSystem():
             if (dict):
                 del dict['Case']['Message']['Attachments']
                 if output is not None and 'xml' == output.lower():
-                    base64_xml = CaseSystem.to_xml(dict=dict)
+                    base64_xml = CaseSystem.to_xml(
+                        dict=dict)  # Data Conversion
                     return base64_xml
                 elif output is None or 'json' == output.lower():
-                    base64_json = CaseSystem.to_json(dict=dict)
+                    base64_json = CaseSystem.to_json(
+                        dict=dict)  # Data Conversion
                     return base64_json
             else:
                 return False
 
+    # Data Creation
     def create_case(**kwargs):
         """
         Insert a new case into database by task
