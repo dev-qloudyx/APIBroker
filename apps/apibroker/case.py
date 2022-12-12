@@ -10,6 +10,37 @@ from django.core.files.storage import FileSystemStorage
 from dicttoxml import dicttoxml
 from xml.dom.minidom import parseString
 
+class CaseHelper():
+    def get_case_list(*args, **kwargs):
+        if kwargs['role'].role == 1:
+            try:
+                case = Case.objects.all()
+                return case
+            except:
+                case = False
+                return case
+        else:
+            try:
+                case = Case.objects.filter(owner=kwargs['role'])
+                return case
+            except:
+                case = False
+                return case
+    def get_case_by_filter(*args, **kwargs):
+        try:
+            case = Case.objects.filter(**kwargs).order_by('-created')
+            return case
+        except:
+            case = False
+            return case
+
+    def get_case_pk(*args,**kwargs):
+        try:
+            case = Case.objects.filter(id=kwargs['id'], owner=kwargs['owner'])
+            return case
+        except:
+            case = False
+            return case
 
 class CaseSystem():
 

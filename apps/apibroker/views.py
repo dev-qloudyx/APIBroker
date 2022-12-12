@@ -1,4 +1,4 @@
-from apps.apibroker.case import CaseSystem
+from apps.apibroker.case import CaseSystem, CaseHelper
 from apps.apibroker.models import Case
 from apps.apibroker.permissions import IsAuthenticated, HasAdminRole
 from apps.apibroker.serializers import (
@@ -33,7 +33,7 @@ class FileIdViewSet(viewsets.GenericViewSet):
         if request.method == "POST":
             output = request.data.get('output')
         if (pk):
-            file_attachment = Case.objects.filter(id=pk, owner=request.user)
+            file_attachment = CaseHelper.get_case_pk(id=pk, owner=request.user)
         if (file_attachment):
             serializer = FileAttachmentSerializer(
                 instance=file_attachment, many=True, context={'request': request})
@@ -61,19 +61,17 @@ class CaseIdViewSet(viewsets.GenericViewSet):
 
     def retrieve(self, request):
         owner = self.request.user.id
+        dict = {'owner': owner}
         if (request.data.get('plate_number') and not request.data.get('case_number')):
-            plate_number = request.data.get('plate_number')
-            case = Case.objects.filter(
-                plate_number=plate_number, owner=owner).order_by('-created')
+            dict['plate_number'] = request.data.get('plate_number')
+            case = CaseHelper.get_case_by_filter(**dict)
         elif (request.data.get('case_number') and not request.data.get('plate_number')):
-            case_number = request.data.get('case_number')
-            case = Case.objects.filter(
-                case_number=case_number, owner=owner).order_by('-created')
+            dict['case_number'] = request.data.get('case_number')
+            case = CaseHelper.get_case_by_filter(**dict)
         elif (request.data.get('plate_number') and request.data.get('case_number')):
-            plate_number = request.data.get('plate_number')
-            case_number = request.data.get('case_number')
-            case = Case.objects.filter(
-                plate_number=plate_number, case_number=case_number, owner=owner).order_by('-created')
+            dict['plate_number'] = request.data.get('plate_number')
+            dict['case_number'] = request.data.get('case_number')
+            case = CaseHelper.get_case_by_filter(**dict)
         else:
             case = None
         serializer = CaseIdSerializer(
@@ -118,10 +116,7 @@ class CaseViewSet(viewsets.ModelViewSet):
         return Response('qloudyx')
 
     def list(self, request):
-        if self.request.user.role == 1:
-            case = Case.objects.all()
-        else:
-            case = Case.objects.filter(owner=self.request.user.id)
+        case = CaseHelper.get_case_list(role=request.user)
         serializer = CaseListSerializer(
             instance=case, many=True, context={'request': request})
         if (serializer.data and self.request.user.role == 1):
@@ -136,7 +131,7 @@ class CaseViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         if (pk):
-            case = Case.objects.filter(id=pk, owner=request.user)
+            case = CaseHelper.get_case_pk(id=pk, owner=request.user)
         if (case):
             output = None
             if request.method == "POST":
