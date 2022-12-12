@@ -18,12 +18,14 @@
                 <a href="#">APP</a>
             </div>
             <ul class="list-unstyled components">
+                {% if user.role_is_admin %}
                 <li>
                     <a href="{% url 'users:register' %}">
                         <i class="fas fa-user"></i>
                         Registar
                     </a>
-                </li>                
+                </li>
+                {% endif %}            
             </ul>
             <div class="d-none d-sm-none d-md-block" style="background-color: black;color: rgb(221, 221, 221); text-align: center; position:fixed; bottom: 0; text-align: center; width: 215px; font-size: 12px;">
                 <span style="color: rgb(229,86,84);">v. 22.05.03</span><br>

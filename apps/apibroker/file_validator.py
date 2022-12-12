@@ -2,18 +2,27 @@ import magic
 from django.utils.deconstruct import deconstructible
 from django.template.defaultfilters import filesizeformat
 from django.core.exceptions import ValidationError
+   
+
+def data_type(file):
+    m = magic.Magic(mime_encoding=True)
+    encoding = m.from_buffer(bytes(file))
+    filetype = magic.from_buffer(bytes(file), mime=True)
+    return filetype, encoding
 
 def validate_attachment(attachments):
-    lista = []
+    not_allowed_list = []
+    filetype_list = []
     check = True
-    content_types=('application/xml','application/json', 'application/pdf', 'image/png', 'text/plain')
+    content_types=('application/xml','application/json', 'application/pdf', 'image/png', 'text/plain', 'text/xml')
     for attachment in attachments:
         filetype = magic.from_buffer(attachment.read(), mime=True)
+        filetype_list.append(filetype)
         if not filetype in content_types:
             msg = f"File [{attachment}:{filetype}] Not Allowed in content types"
-            lista.append(msg)
+            not_allowed_list.append(msg)
             check = False
-    return lista, check, content_types
+    return not_allowed_list, check, content_types, filetype_list
     
     
 @deconstructible

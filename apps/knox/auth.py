@@ -60,7 +60,7 @@ class TokenAuthentication(BaseAuthentication):
 
         Tokens that have expired will be deleted and skipped
         '''
-        msg = _('Token inválido, acesso negado...')
+        msg = {"resultCode": 0, 'errorDescription': 'Token inválido, acesso negado...'}
         token = token.decode("utf-8")
         for auth_token in AuthToken.objects.filter(
                 token_key=token[:CONSTANTS.TOKEN_KEY_LENGTH]):

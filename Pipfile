@@ -16,6 +16,8 @@ django-celery-beat = "*"
 django_celery_results = "*"
 cryptography = "*"
 python-magic = "*"
+xmltodict = "*"
+dicttoxml = "*"
 
 [dev-packages]
 autopep8 = "*"

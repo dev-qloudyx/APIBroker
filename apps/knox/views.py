@@ -65,8 +65,8 @@ class LoginView(APIView):
                             request=request, user=request.user)
         data = self.get_post_response_data(request, token, instance)
         object = AuthToken.objects.get(digest=instance.digest)
-
         dic = {
+            'resultCode': 1,
             'CreatedDate': object.created,
             #'Expiração': data['expiry'],
             'Token': data['token']
@@ -82,7 +82,7 @@ class LogoutView(APIView):
         request._auth.delete()
         user_logged_out.send(sender=request.user.__class__,
                              request=request, user=request.user)
-        return Response("LogOut feito com sucesso...", status=status.HTTP_200_OK)
+        return Response({'resultCode' : 1,"Result" : "logout feito com sucesso..."}, status=status.HTTP_200_OK)
 
 
 class LogoutAllView(APIView):
@@ -97,4 +97,4 @@ class LogoutAllView(APIView):
         request.user.auth_token_set.all().delete()
         user_logged_out.send(sender=request.user.__class__,
                              request=request, user=request.user)
-        return Response(f"LogOut feito a todos os tokens referente a este user: {request.user} sucesso...", status=status.HTTP_200_OK)
+        return Response({'resultCode' : 1, "Result" : f"logout feito a todos os tokens referente a este user: {request.user} sucesso..."}, status=status.HTTP_200_OK)

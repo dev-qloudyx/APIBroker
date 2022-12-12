@@ -190,7 +190,7 @@ LOGGING = {
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # LOGIN_REDIRECT_URL = 'users:profile'
-LOGIN_REDIRECT_URL = 'api/case/list/'
+LOGIN_REDIRECT_URL = 'profile/'
 
 LOGIN_URL = 'users:login'
 LOGOUT_REDIRECT_URL = 'users:login'
@@ -219,3 +219,4 @@ CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
 CELERY_TIMEZONE = "Europe/Lisbon"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_RESULT_EXTENDED = True
