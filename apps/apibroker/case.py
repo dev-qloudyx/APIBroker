@@ -185,9 +185,9 @@ class CaseSystem():
         """
         user = User.objects.get(id=kwargs['owner'])
         binary = bytes(base64.b64decode(kwargs['case_file']))
-        Case.objects.create(customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
+        Case.objects.create(client_key=kwargs['client_key'], customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
                             plate_number=kwargs['plate_number'], preshared_key=kwargs['preshared_key'], owner=user, binary=binary)
         try:
-            UserCase.objects.get(owner_id=user.id, customer_key=kwargs['customer_key'])
+            UserCase.objects.get(owner_id=user.id, client_key=kwargs['client_key'] ,customer_key=kwargs['customer_key'])
         except:
-            UserCase.objects.create(customer_key=kwargs['customer_key'], owner_id=user.id)
+            UserCase.objects.create(client_key=kwargs['client_key'], customer_key=kwargs['customer_key'], owner_id=user.id)
