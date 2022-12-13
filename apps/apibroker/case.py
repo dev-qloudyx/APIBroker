@@ -3,7 +3,7 @@ import base64
 import json
 import os
 import xmltodict
-from apps.apibroker.models import Case
+from apps.apibroker.models import Case, UserCase
 from apps.users.models import User
 from apps.apibroker.file_validator import data_type
 from django.core.files.storage import FileSystemStorage
@@ -14,37 +14,42 @@ class CaseHelper():
 
     # Data Retrieve
     def get_case_list(*args, **kwargs):
-        if kwargs['role'].role == 1:
+        if kwargs['user'].role == 1:
             try:
                 case = Case.objects.all()
                 return case
             except:
-                case = False
+                case = None
                 return case
         else:
             try:
-                case = Case.objects.filter(owner=kwargs['role'])
+                user = UserCase.objects.get(owner_id=kwargs['user'].id)
+                case = Case.objects.filter(customer_key=user.customer_key)
                 return case
             except:
-                case = False
+                case = None
                 return case
 
     # Data Retrieve
     def get_case_by_filter(*args, **kwargs):
         try:
+            user = UserCase.objects.get(owner_id=kwargs['owner'].id)
+            kwargs.pop('owner')
+            kwargs['customer_key'] = user.customer_key
             case = Case.objects.filter(**kwargs).order_by('-created')
             return case
         except:
-            case = False
+            case = None
             return case
 
     # Data Retrieve
     def get_case_pk(*args, **kwargs):
         try:
-            case = Case.objects.filter(id=kwargs['id'], owner=kwargs['owner'])
+            user = UserCase.objects.get(owner_id=kwargs['owner'].id)
+            case = Case.objects.filter(id=kwargs['id'], customer_key=user.customer_key)
             return case
         except:
-            case = False
+            case = None
             return case
 
 class CaseSystem():
@@ -182,3 +187,7 @@ class CaseSystem():
         binary = bytes(base64.b64decode(kwargs['case_file']))
         Case.objects.create(customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
                             plate_number=kwargs['plate_number'], preshared_key=kwargs['preshared_key'], owner=user, binary=binary)
+        try:
+            UserCase.objects.get(owner_id=user.id, customer_key=kwargs['customer_key'])
+        except:
+            UserCase.objects.create(customer_key=kwargs['customer_key'], owner_id=user.id)

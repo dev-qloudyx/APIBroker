@@ -59,7 +59,7 @@ class CaseIdViewSet(viewsets.GenericViewSet):
     parser_classes = [MultiPartParser, JSONParser]
 
     def retrieve(self, request):
-        owner = self.request.user.id
+        owner = self.request.user
         dict = {'owner': owner}
         if (request.data.get('plate_number') and not request.data.get('case_number')):
             dict['plate_number'] = request.data.get('plate_number')
@@ -115,7 +115,7 @@ class CaseViewSet(viewsets.ModelViewSet):
         return Response('qloudyx')
 
     def list(self, request):
-        case = CaseHelper.get_case_list(role=request.user)
+        case = CaseHelper.get_case_list(user=request.user)
         serializer = CaseListSerializer(
             instance=case, many=True, context={'request': request}) # Data serialization
         if (serializer.data and self.request.user.role == 1):
@@ -130,7 +130,7 @@ class CaseViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, pk=None):
         if (pk):
-            case = CaseHelper.get_case_pk(id=pk, owner=request.user)
+            case = CaseHelper.get_case_pk(id=pk, owner=request.user) # Data retrieve
         if (case):
             output = None
             if request.method == "POST":
