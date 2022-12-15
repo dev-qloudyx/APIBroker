@@ -1,4 +1,4 @@
-from apps.apibroker.case import CaseSystem, CaseHelper
+from apps.apibroker.case import CaseSystem
 from apps.apibroker.permissions import IsAuthenticated, HasAdminRole
 from apps.apibroker.serializers import (
     CaseSerializer, UserSerializer, CaseIdSerializer, FileAttachmentSerializer, CasePkSerializer, CaseListSerializer)
@@ -7,7 +7,6 @@ from apps.users.models import User
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework import filters
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from apps.users.roles import ADMIN, BSMS, CS, DMS, role_required_json
@@ -35,7 +34,7 @@ class FileIdViewSet(viewsets.GenericViewSet):
         if request.method == "GET":
             output = output
         if (pk):
-            file_attachment = CaseHelper.get_case_pk(id=pk, owner=request.user) # Data retrieve
+            file_attachment = CaseSystem.get_case_pk(id=pk, owner=request.user) # Data retrieve
         if (file_attachment):
             serializer = FileAttachmentSerializer(
                 instance=file_attachment, many=True, context={'request': request}) # Data serialization
@@ -67,14 +66,14 @@ class CaseIdViewSet(viewsets.GenericViewSet):
         dict = {'owner': owner}
         if (request.data.get('plate_number') and not request.data.get('case_number')):
             dict['plate_number'] = request.data.get('plate_number')
-            case = CaseHelper.get_case_by_filter(**dict) # Data retrieve
+            case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
         elif (request.data.get('case_number') and not request.data.get('plate_number')):
             dict['case_number'] = request.data.get('case_number')
-            case = CaseHelper.get_case_by_filter(**dict) # Data retrieve
+            case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
         elif (request.data.get('plate_number') and request.data.get('case_number')):
             dict['plate_number'] = request.data.get('plate_number')
             dict['case_number'] = request.data.get('case_number')
-            case = CaseHelper.get_case_by_filter(**dict) # Data retrieve
+            case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
         else:
             case = None
         serializer = CaseIdSerializer(
@@ -88,7 +87,7 @@ class CaseIdViewSet(viewsets.GenericViewSet):
 
 class CaseViewSet(viewsets.ModelViewSet):
     """
-    This viewset provides `list`, `create`, `retrieve`, `home` .
+    This viewset provides `list`, `create`, `retrieve`.
     """
     serializer_class = CaseSerializer
     authentication_classes = [TokenAuthentication]
@@ -118,7 +117,7 @@ class CaseViewSet(viewsets.ModelViewSet):
 
     @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
     def list(self, request):
-        case = CaseHelper.get_case_list(user=request.user)
+        case = CaseSystem.get_case_list(user=request.user)
         serializer = CaseListSerializer(
             instance=case, many=True, context={'request': request}) # Data serialization
         if (serializer.data and self.request.user.role == 1):
@@ -134,7 +133,7 @@ class CaseViewSet(viewsets.ModelViewSet):
     @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
     def retrieve(self, request, pk=None, output=None):
         if (pk):
-            case = CaseHelper.get_case_pk(id=pk, owner=request.user) # Data retrieve
+            case = CaseSystem.get_case_pk(id=pk, owner=request.user) # Data retrieve
         if (case):
             msg, attachment = None, False
             if request.method == "POST":

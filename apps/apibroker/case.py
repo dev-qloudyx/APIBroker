@@ -11,12 +11,25 @@ from xml.dom.minidom import parseString  # pretty xml
 
 logger = logging.getLogger(__name__)
 
-
 class CaseHelper():
     """
     CRUD operations goes here...
     """
 
+    # Data Creation
+    def create_case(**kwargs):
+        """
+        Insert a new case into database by task
+        """
+        user = User.objects.get(id=kwargs['owner'])
+        binary = bytes(base64.b64decode(kwargs['case_file']))
+        try:
+            case = Case.objects.create(client_key=kwargs['client_key'], customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
+                                       plate_number=kwargs['plate_number'], preshared_key=kwargs['preshared_key'], owner=user, binary=binary)
+            logger.info(f'Caso com id: {case.id} criado com sucesso...')
+        except Exception as e:
+            logger.error(str(e))
+            
     # Data Retrieve
     def get_case_list(*args, **kwargs):
         if kwargs['user'].role == 1:
@@ -58,7 +71,7 @@ class CaseHelper():
             case = None
             return case
 
-class CaseCore():
+class CaseCore(CaseHelper):
     """
     Core Methods goes here...
     """
@@ -230,7 +243,6 @@ class CaseCore():
         else:
             return False, "Use POST or GET method..."
         
-
 class CaseSystem(CaseCore):
 
     # Data Generation Core
@@ -263,16 +275,3 @@ class CaseSystem(CaseCore):
         else:
             return False, msg
             
-    # Data Creation
-    def create_case(**kwargs):
-        """
-        Insert a new case into database by task
-        """
-        user = User.objects.get(id=kwargs['owner'])
-        binary = bytes(base64.b64decode(kwargs['case_file']))
-        try:
-            case = Case.objects.create(client_key=kwargs['client_key'], customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
-                                       plate_number=kwargs['plate_number'], preshared_key=kwargs['preshared_key'], owner=user, binary=binary)
-            logger.info(f'Caso com id: {case.id} criado com sucesso...')
-        except Exception as e:
-            logger.error(str(e))
