@@ -10,7 +10,8 @@ from rest_framework import filters
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
-
+from apps.users.roles import ADMIN, BSMS, CS, DMS, role_required_json
+from django.utils.decorators import method_decorator
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -26,22 +27,24 @@ class FileIdViewSet(viewsets.GenericViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def retrieve(self, request, pk=None):
-        doc_type = request.data.get('Doc_type')
-        output = None
+    @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
+    def retrieve(self, request, pk=None, output=None):
+        doc_type = request.data.get('doc_type')
         if request.method == "POST":
             output = request.data.get('output')
+        if request.method == "GET":
+            output = output
         if (pk):
             file_attachment = CaseHelper.get_case_pk(id=pk, owner=request.user) # Data retrieve
         if (file_attachment):
             serializer = FileAttachmentSerializer(
                 instance=file_attachment, many=True, context={'request': request}) # Data serialization
-            binary = CaseSystem.generate_case(
+            binary, msg = CaseSystem.generate_case(request=request,
                 binary=file_attachment[0].binary, attachment=True, doc_type=doc_type, output=output) # Data retrieve
             if (serializer.data and binary):
                 return Response({"resultCode": 1, "case": {'case_file': binary}}, status=status.HTTP_200_OK)
             else:
-                return Response({"resultCode": 0, 'errorDescription': ['Not found']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"resultCode": 0, 'errorDescription': [{msg}]}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"resultCode": 0, 'errorDescription': ['ObjectDoesNotExist or not owner']}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -58,6 +61,7 @@ class CaseIdViewSet(viewsets.GenericViewSet):
                      'customer_key', 'plate_number']
     parser_classes = [MultiPartParser, JSONParser]
 
+    @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
     def retrieve(self, request):
         owner = self.request.user
         dict = {'owner': owner}
@@ -94,6 +98,7 @@ class CaseViewSet(viewsets.ModelViewSet):
                      'customer_key', 'plate_number']
     parser_classes = [MultiPartParser, JSONParser]
 
+    @method_decorator(role_required_json([ADMIN, CS]))
     def create(self, request, *args, **kwargs):
         from apps.apibroker.tasks import save_to_db
         serializer = self.get_serializer(data=request.data) # Data serialization
@@ -111,9 +116,7 @@ class CaseViewSet(viewsets.ModelViewSet):
             save_to_db.delay(**kwargs) # Task for Data Creation
             return Response({"resultCode": 1}, status=status.HTTP_201_CREATED, headers=None)
 
-    def home(self, request):
-        return Response('qloudyx')
-
+    @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
     def list(self, request):
         case = CaseHelper.get_case_list(user=request.user)
         serializer = CaseListSerializer(
@@ -127,16 +130,20 @@ class CaseViewSet(viewsets.ModelViewSet):
             return Response({"resultCode": 1, "Result": copy_serializer}, status=status.HTTP_200_OK)
         else:
             return Response({"resultCode": 0, 'errorDescription': ['No cases available']}, status=status.HTTP_400_BAD_REQUEST)
-
-    def retrieve(self, request, pk=None):
+    
+    @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
+    def retrieve(self, request, pk=None, output=None):
         if (pk):
             case = CaseHelper.get_case_pk(id=pk, owner=request.user) # Data retrieve
         if (case):
-            output = None
+            msg, attachment = None, False
             if request.method == "POST":
+                attachment = request.data.get('attachment')
                 output = request.data.get('output')
-            binary = CaseSystem.generate_case(
-                binary=case[0].binary, attachment=False, doc_type=None, output=output) # Data retrieve
+            if request.method == "GET":
+                output = output
+            binary, msg = CaseSystem.generate_case(request=request,
+                binary=case[0].binary, attachment=attachment, doc_type=None, output=output) # Data retrieve
             serializer = CasePkSerializer(
                 instance=case, many=True, context={'request': request}) # Data serialization
             copy_serializer = serializer.data
@@ -144,6 +151,6 @@ class CaseViewSet(viewsets.ModelViewSet):
             if (binary):
                 return Response({"resultCode": 1, "Result": copy_serializer}, status=status.HTTP_200_OK)
             else:
-                return Response({"resultCode": 0, 'errorDescription': [f'binary = {binary}', 'Generate Case Error']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"resultCode": 0, 'errorDescription': [msg]}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"resultCode": 0, 'errorDescription': ['ObjectDoesNotExist or not owner']}, status=status.HTTP_400_BAD_REQUEST)

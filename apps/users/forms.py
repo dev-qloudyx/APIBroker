@@ -1,11 +1,13 @@
 from django import forms
+
+from apps.apibroker.models import UserCase
 from .models import User, Profile
 from django.contrib.auth.forms import UserCreationForm
 
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()
-
+    
     class Meta:
         model = User
         fields = ['email', 'username', 'role']
@@ -38,3 +40,14 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['image', 'full_name', 'about']
+
+class UserCaseForm(forms.ModelForm):
+    class Meta:
+        model = UserCase
+        fields = ['client_key', 'customer_key']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.fields['customer_key'].initial = "AXNET107"
+        #self.fields['customer_key'].widget.attrs['readonly'] = True
+        

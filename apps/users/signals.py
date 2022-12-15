@@ -18,12 +18,5 @@ def create_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
-def create_customer_key(sender, instance, created, **kwargs):
-    if created:
-        customer_key = random_choice()
-        client_key = random_choice()
-        UserCase.objects.create(client_key=client_key, customer_key=customer_key ,owner=instance)
-
-@receiver(post_save, sender=User)
 def save_profile(sender, instance, **kwargs):
     instance.profile.save()
