@@ -25,7 +25,7 @@ class CaseInstanceManager(models.Model):
         ordering = ['created']
 
     def __str__(self) -> str:
-        return f"{self.case_number} - {self.plate_number} - {self.operator_id}"
+        return f"{self.caseNumber} - {self.plateNumber} - {self.operatorId}"
 
 class UserCase(models.Model):
     originId = models.CharField(max_length=100, default='')
