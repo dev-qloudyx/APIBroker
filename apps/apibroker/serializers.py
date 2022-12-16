@@ -31,11 +31,11 @@ class CasePkSerializer(serializers.ModelSerializer):
         
 class CaseSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
-    case_file = serializers.CharField()
+    caseFile = serializers.CharField()
     class Meta:
         model = CaseInstanceManager
-        fields = ['id', 'case_file', 'operatorId', 'originId', 'customerId', 'caseNumber', 'plateNumber', 'owner']
-        extra_kwargs = {'case_file': {'required': True}, 'operatorId': {
+        fields = ['id', 'caseFile', 'operatorId', 'originId', 'customerId', 'caseNumber', 'plateNumber', 'owner']
+        extra_kwargs = {'caseFile': {'required': True}, 'operatorId': {
             'required': True}, 'originId':{'required': True},'customerId':{'required': True},'caseNumber': {'required': True}, 'plateNumber': {'required': True}}
 
 class UserSerializer(serializers.ModelSerializer):

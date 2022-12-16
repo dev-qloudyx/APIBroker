@@ -41,7 +41,7 @@ class FileIdViewSet(viewsets.GenericViewSet):
             binary, msg = CaseSystem.generate_case(request=request,
                 binary=file_attachment[0].binary, attachment=True, doc_type=doc_type, output=output) # Data retrieve
             if (serializer.data and binary):
-                return Response({"resultCode": 1, "case": {'case_file': binary}}, status=status.HTTP_200_OK)
+                return Response({"resultCode": 1, "case": {'caseFile': binary}}, status=status.HTTP_200_OK)
             else:
                 return Response({"resultCode": 0, 'errorDescription': [{msg}]}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -56,23 +56,23 @@ class CaseIdViewSet(viewsets.GenericViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['case_file', 'case_number',
-                     'customer_key', 'plate_number']
+    search_fields = ['caseFile', 'caseNumber',
+                     'customerKey', 'plateNumber']
     parser_classes = [MultiPartParser, JSONParser]
 
     @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
     def retrieve(self, request):
         owner = self.request.user
         dict = {'owner': owner}
-        if (request.data.get('plate_number') and not request.data.get('case_number')):
-            dict['plate_number'] = request.data.get('plate_number')
+        if (request.data.get('plateNumber') and not request.data.get('caseNumber')):
+            dict['plateNumber'] = request.data.get('plateNumber')
             case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
-        elif (request.data.get('case_number') and not request.data.get('plate_number')):
-            dict['case_number'] = request.data.get('case_number')
+        elif (request.data.get('caseNumber') and not request.data.get('plateNumber')):
+            dict['caseNumber'] = request.data.get('caseNumber')
             case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
-        elif (request.data.get('plate_number') and request.data.get('case_number')):
-            dict['plate_number'] = request.data.get('plate_number')
-            dict['case_number'] = request.data.get('case_number')
+        elif (request.data.get('plateNumber') and request.data.get('caseNumber')):
+            dict['plateNumber'] = request.data.get('plateNumber')
+            dict['caseNumber'] = request.data.get('caseNumber')
             case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
         else:
             case = None
@@ -93,24 +93,16 @@ class CaseViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
-    search_fields = ['case_file', 'case_number',
-                     'customer_key', 'plate_number']
+    search_fields = ['caseFile', 'caseNumber',
+                     'customerKey', 'plateNumber']
     parser_classes = [MultiPartParser, JSONParser]
-
-    def get_ip_address(request):
-        user_ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
-        if user_ip_address:
-            ip = user_ip_address.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
 
     @method_decorator(role_required_json([ADMIN, CS]))
     def create(self, request, *args, **kwargs):
         from apps.apibroker.tasks import save_to_db
         serializer = self.get_serializer(data=request.data) # Data serialization
         check_serializer = serializer.is_valid(raise_exception=False) # Validation
-        check_base64 = CaseSystem.isbase64(request.data['case_file']) # Validation
+        check_base64 = CaseSystem.isbase64(request.data['caseFile']) # Validation
         headers = self.get_success_headers(serializer.data)
         kwargs['owner'] = self.request.user.id
         for i in [element for element in request.data]:

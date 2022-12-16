@@ -24,7 +24,7 @@ class CaseHelper():
         """
         try:
             user = User.objects.get(id=kwargs['owner'])
-            binary = bytes(base64.b64decode(kwargs['case_file']))
+            binary = bytes(base64.b64decode(kwargs['caseFile']))
             case = CaseInstanceManager.objects.create(originId=kwargs['originId'], operatorId=kwargs['operatorId'], customerId=kwargs['customerId'], caseNumber=kwargs['caseNumber'],
                                      plateNumber=kwargs['plateNumber'], owner=user, binary=binary, extReferenceNumber=kwargs['extReferenceNumber'])
             logger.info(f'Caso com id: {case.id} criado com sucesso...')
