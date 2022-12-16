@@ -44,7 +44,7 @@ class ProfileUpdateForm(forms.ModelForm):
 class UserCaseForm(forms.ModelForm):
     class Meta:
         model = UserCase
-        fields = ['client_key', 'customer_key']
+        fields = ['originId', 'operatorId', 'customerId']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

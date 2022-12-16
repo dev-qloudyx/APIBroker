@@ -97,6 +97,14 @@ class CaseViewSet(viewsets.ModelViewSet):
                      'customer_key', 'plate_number']
     parser_classes = [MultiPartParser, JSONParser]
 
+    def get_ip_address(request):
+        user_ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
+        if user_ip_address:
+            ip = user_ip_address.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
     @method_decorator(role_required_json([ADMIN, CS]))
     def create(self, request, *args, **kwargs):
         from apps.apibroker.tasks import save_to_db

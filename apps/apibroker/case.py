@@ -3,7 +3,7 @@ import base64
 import json
 import xmltodict
 import logging
-from apps.apibroker.models import Case, UserCase
+from apps.apibroker.models import CaseInstanceManager, UserCase
 from apps.users.models import User
 from apps.apibroker.file_validator import data_type
 from dicttoxml import dicttoxml
@@ -25,8 +25,8 @@ class CaseHelper():
         try:
             user = User.objects.get(id=kwargs['owner'])
             binary = bytes(base64.b64decode(kwargs['case_file']))
-            case = Case.objects.create(client_key=kwargs['client_key'], customer_key=kwargs['customer_key'], case_number=kwargs['case_number'],
-                                     plate_number=kwargs['plate_number'], preshared_key=kwargs['preshared_key'], owner=user, binary=binary)
+            case = CaseInstanceManager.objects.create(originId=kwargs['originId'], operatorId=kwargs['operatorId'], customerId=kwargs['customerId'], caseNumber=kwargs['caseNumber'],
+                                     plateNumber=kwargs['plateNumber'], owner=user, binary=binary, extReferenceNumber=kwargs['extReferenceNumber'])
             logger.info(f'Caso com id: {case.id} criado com sucesso...')
         except Exception as e:
             logger.error(str(e))
@@ -35,7 +35,7 @@ class CaseHelper():
     def get_case_list(*args, **kwargs):
         if kwargs['user'].role == 1:
             try:
-                case = Case.objects.all()
+                case = CaseInstanceManager.objects.all()
                 return case
             except:
                 case = None
@@ -43,7 +43,7 @@ class CaseHelper():
         else:
             try:
                 user = UserCase.objects.get(owner_id=kwargs['user'].id)
-                case = Case.objects.filter(customer_key=user.customer_key)
+                case = CaseInstanceManager.objects.filter(operator_id=user.operatorId)
                 return case
             except:
                 case = None
@@ -54,8 +54,8 @@ class CaseHelper():
         try:
             user = UserCase.objects.get(owner_id=kwargs['owner'].id)
             kwargs.pop('owner')
-            kwargs['customer_key'] = user.customer_key
-            case = Case.objects.filter(**kwargs).order_by('-created')
+            kwargs['operatorId'] = user.operatorId
+            case = CaseInstanceManager.objects.filter(**kwargs).order_by('-created')
             return case
         except:
             case = None
@@ -65,8 +65,8 @@ class CaseHelper():
     def get_case_pk(*args, **kwargs):
         try:
             user = UserCase.objects.get(owner_id=kwargs['owner'].id)
-            case = Case.objects.filter(
-                id=kwargs['id'], customer_key=user.customer_key)
+            case = CaseInstanceManager.objects.filter(
+                id=kwargs['id'], operatorId=user.operatorId)
             return case
         except:
             case = None
