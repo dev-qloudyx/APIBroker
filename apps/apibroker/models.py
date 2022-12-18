@@ -25,11 +25,14 @@ class CaseInstanceManager(models.Model):
         ordering = ['created']
 
     def __str__(self) -> str:
-        return f"{self.caseNumber} - {self.plateNumber} - {self.operatorId}"
+        return f"ID: {self.id} - CaseNº: {self.caseNumber} - PlateNº: {self.plateNumber} - OperatorId: {self.operatorId}"
 
-class UserCase(models.Model):
+class DmsBsmsInstanceManager(models.Model):
+    """
+    Stores DmsBsms entry, related to :model:`users.user`.
+    """
     originId = models.CharField(max_length=100, default='')
-    operatorId = models.CharField(max_length=100, default='')
+    operatorId = models.CharField(max_length=100, default='', unique=True)
     customerId = models.CharField(max_length=100, default='')
     owner = models.ForeignKey(User, related_name='owner', on_delete=models.CASCADE, verbose_name='Utilizador', blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -39,4 +42,5 @@ class UserCase(models.Model):
 
     def __str__(self) -> str:
         return f"{self.operatorId} - {self.owner}"
+    
 

@@ -1,10 +1,11 @@
 
 from django.urls import path, include
-from apps.apibroker.views import (CaseViewSet, CaseIdViewSet, FileIdViewSet)
+from apps.apibroker.views import (CaseViewSet, CaseIdViewSet, FileIdViewSet, DmsBsmsView)
 
 app_name = "broker"
 
 urlpatterns = [
+    path('register_dms_bsms/', DmsBsmsView.as_view(), name='dms_bsms'),
     path('sendcase/',
          CaseViewSet.as_view({'post': 'create'})),
     path('getcase/', CaseViewSet.as_view({'get': 'list'})),

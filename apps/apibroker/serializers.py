@@ -37,10 +37,3 @@ class CaseSerializer(serializers.ModelSerializer):
         fields = ['id', 'caseFile', 'operatorId', 'originId', 'customerId', 'caseNumber', 'plateNumber', 'owner']
         extra_kwargs = {'caseFile': {'required': True}, 'operatorId': {
             'required': True}, 'originId':{'required': True},'customerId':{'required': True},'caseNumber': {'required': True}, 'plateNumber': {'required': True}}
-
-class UserSerializer(serializers.ModelSerializer):
-    cases = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
-    class Meta:
-        model = User
-        fields = '__all__'

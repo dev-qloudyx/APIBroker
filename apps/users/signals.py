@@ -4,7 +4,6 @@
 import string
 import random
 from .models import User, Profile
-from apps.apibroker.models import UserCase
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 

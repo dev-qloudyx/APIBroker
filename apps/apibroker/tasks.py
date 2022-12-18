@@ -2,7 +2,8 @@
 from celery import shared_task
 from apps.apibroker.case import CaseSystem
 
-@shared_task
+@shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries':10, 'countdown': 5})
 def save_to_db(**kwargs):
-    return CaseSystem.create_case(**kwargs)
+    case = CaseSystem.create_case(**kwargs)
+    return f"CaseID: {case.id}, Owner: {case.owner}, OperatorID: {case.operatorId}"
 
