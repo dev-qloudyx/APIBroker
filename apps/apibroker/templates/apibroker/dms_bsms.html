@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content%}
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4"><i style="width: 30px" class="fa-solid fa-user-plus"></i> Associar DMS/BSMS</legend>
+                {{ c_form|crispy }}
+            </fieldset>
+            <div class="form-group" style="text-align: right;">
+                <button class="btn btn-outline-info" type="submit">Associar</button>
+            </div>
+        </form>
+    </div>
+{% endblock content%}

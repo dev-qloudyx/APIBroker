@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import UserCaseForm, UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from .roles import role_required, ADMIN
 
 @login_required
@@ -9,12 +9,8 @@ from .roles import role_required, ADMIN
 def register(request):
     if request.method == 'POST':
         u_form = UserRegisterForm(request.POST)
-        c_form = UserCaseForm(request.POST)
-        if u_form.is_valid() and c_form.is_valid():
-            instance = u_form.save()
-            user_case = c_form.save(commit=False)
-            user_case.owner = instance
-            user_case.save()
+        if u_form.is_valid():
+            u_form.save()
             email = u_form.cleaned_data.get('email')
             messages.success(request,
                 f'Account created... "{email}" is now able to log in!')
@@ -24,8 +20,7 @@ def register(request):
                 'Problems with account creation, see errors below...')
     else:
         u_form = UserRegisterForm()
-        c_form = UserCaseForm()
-    return render(request, 'users/register.html', {'u_form': u_form, 'c_form': c_form})
+    return render(request, 'users/register.html', {'u_form': u_form})
 
 
 @login_required

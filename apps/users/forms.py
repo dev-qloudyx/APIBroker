@@ -1,6 +1,5 @@
 from django import forms
 
-from apps.apibroker.models import UserCase
 from .models import User, Profile
 from django.contrib.auth.forms import UserCreationForm
 
@@ -10,7 +9,7 @@ class UserRegisterForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ['email', 'username', 'role']
+        fields = ['email', 'username', 'role', 'ipAddress']
         help_texts = {
             'password1': '',
             'password2': ''
@@ -33,21 +32,18 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'username']
+        fields = ['email', 'username', 'ipAddress']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['ipAddress'].widget.attrs['readonly'] = True
+        self.fields['ipAddress'].widget.attrs['hidden'] = True
+        self.fields['ipAddress'].label = ''
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['image', 'full_name', 'about']
 
-class UserCaseForm(forms.ModelForm):
-    class Meta:
-        model = UserCase
-        fields = ['originId', 'operatorId', 'customerId']
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        #self.fields['customer_key'].initial = "AXNET107"
-        #self.fields['customer_key'].widget.attrs['readonly'] = True
+
         

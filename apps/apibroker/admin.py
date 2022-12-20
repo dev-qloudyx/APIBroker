@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from apps.apibroker.models import CaseInstanceManager, UserCase
+from apps.apibroker.models import CaseInstanceManager, DmsBsmsInstanceManager
 
 # Register your models here.
 
 admin.site.register(CaseInstanceManager)
-admin.site.register(UserCase)
+admin.site.register(DmsBsmsInstanceManager)

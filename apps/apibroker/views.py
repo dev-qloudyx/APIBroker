@@ -1,22 +1,45 @@
+import logging
 from apps.apibroker.case import CaseSystem
-from apps.apibroker.permissions import IsAuthenticated, HasAdminRole
+from apps.apibroker.forms import DmsBsmsForm
+from apps.apibroker.permissions import IsAuthenticated, IpAdressPermission
 from apps.apibroker.serializers import (
-    CaseSerializer, UserSerializer, CaseIdSerializer, FileAttachmentSerializer, CasePkSerializer, CaseListSerializer)
+    CaseSerializer, CaseIdSerializer, FileAttachmentSerializer, CasePkSerializer, CaseListSerializer)
 from apps.knox.auth import TokenAuthentication
-from apps.users.models import User
+from apps.users.roles import ADMIN, BSMS, CS, DMS, role_required_json, role_required
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
+from django.views import View
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework import filters
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
-from apps.users.roles import ADMIN, BSMS, CS, DMS, role_required_json
-from django.utils.decorators import method_decorator
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated, HasAdminRole]
 
+logger = logging.getLogger(__name__)
+
+@method_decorator([login_required, role_required(ADMIN)], name='dispatch')
+class DmsBsmsView(View):
+    """
+    This view provides only `get` and `post`.
+    """
+
+    def get(self, request, *args, **kwargs):
+        c_form = DmsBsmsForm()
+        return render(request, 'apibroker/dms_bsms.html', {'c_form': c_form})
+   
+    def post(self, request, *args, **kwargs):
+        c_form = DmsBsmsForm(request.POST)
+        if c_form.is_valid():
+            c_form.save()
+            messages.success(request,
+                f'Successfully associated...')
+            return redirect('users:login')
+        else:
+            messages.error(request,
+                'Problem with association...')
 
 class FileIdViewSet(viewsets.GenericViewSet):
     """
@@ -47,7 +70,6 @@ class FileIdViewSet(viewsets.GenericViewSet):
         else:
             return Response({"resultCode": 0, 'errorDescription': ['ObjectDoesNotExist or not owner']}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class CaseIdViewSet(viewsets.GenericViewSet):
     """
     This viewset provides only `retrieve`.
@@ -63,34 +85,21 @@ class CaseIdViewSet(viewsets.GenericViewSet):
     @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
     def retrieve(self, request):
         owner = self.request.user
-        dict = {'owner': owner}
-        if (request.data.get('plateNumber') and not request.data.get('caseNumber')):
-            dict['plateNumber'] = request.data.get('plateNumber')
-            case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
-        elif (request.data.get('caseNumber') and not request.data.get('plateNumber')):
-            dict['caseNumber'] = request.data.get('caseNumber')
-            case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
-        elif (request.data.get('plateNumber') and request.data.get('caseNumber')):
-            dict['plateNumber'] = request.data.get('plateNumber')
-            dict['caseNumber'] = request.data.get('caseNumber')
-            case = CaseSystem.get_case_by_filter(**dict) # Data retrieve
-        else:
-            case = None
+        dict = {'owner': owner, 'request': request}
+        case = CaseSystem.last_case_id_by_filter(**dict)
         serializer = CaseIdSerializer(
             instance=case, many=True, context={'request': request}) # Data serialization
-
         if (serializer.data and case):
             return Response({"resultCode": 1, "Result": serializer.data[0]}, status=status.HTTP_200_OK)
         else:
             return Response({"resultCode": 0, 'errorDescription': ['Not found']}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class CaseViewSet(viewsets.ModelViewSet):
     """
     This viewset provides `list`, `create`, `retrieve`.
     """
     serializer_class = CaseSerializer
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [TokenAuthentication] #[IsAuthenticated, IpAdressPermission]
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter]
     search_fields = ['caseFile', 'caseNumber',
@@ -100,19 +109,28 @@ class CaseViewSet(viewsets.ModelViewSet):
     @method_decorator(role_required_json([ADMIN, CS]))
     def create(self, request, *args, **kwargs):
         from apps.apibroker.tasks import save_to_db
+        from apps.apibroker.file_validator import data_type, allowed_types
         serializer = self.get_serializer(data=request.data) # Data serialization
         check_serializer = serializer.is_valid(raise_exception=False) # Validation
-        check_base64 = CaseSystem.isbase64(request.data['caseFile']) # Validation
         headers = self.get_success_headers(serializer.data)
-        kwargs['owner'] = self.request.user.id
-        for i in [element for element in request.data]:
-            kwargs[i] = request.data[i]
+        check_base64, decoded = CaseSystem.isBase64(request.data['caseFile']) # Validation
+        if decoded:
+            filetype, encoding = data_type(decoded) # Validation
+            check_data_type, content_types = allowed_types(filetype) # Validation
         if not check_serializer:
             return Response({'resultCode': 0, 'errorDescription': serializer.errors}, status=status.HTTP_400_BAD_REQUEST, headers=headers)
         elif not check_base64:
             return Response({'resultCode': 0, 'errorDescription': ['Not Base64 encoded...']}, status=status.HTTP_400_BAD_REQUEST, headers=headers)
+        elif not check_data_type:
+            return Response({'resultCode': 0, 'errorDescription': [f'Data Type: {filetype} not in allowed list {content_types}']}, status=status.HTTP_400_BAD_REQUEST, headers=headers)
         else:
-            save_to_db.delay(**kwargs) # Task for Data Creation
+            logger.info("Passed validations - Generate a new Asycn Task")
+            kwargs['owner'] = self.request.user.id
+            logger.info("Generate kwargs...")
+            for i in [element for element in request.data]:
+                kwargs[i] = request.data[i]
+            task_number = save_to_db.delay(**kwargs) # Task for Data Creation
+            logger.info(f"Task Number: {task_number}")
             return Response({"resultCode": 1}, status=status.HTTP_201_CREATED, headers=None)
 
     @method_decorator(role_required_json([ADMIN, DMS,  BSMS]))
@@ -137,7 +155,7 @@ class CaseViewSet(viewsets.ModelViewSet):
         if (case):
             msg, attachment = None, False
             if request.method == "POST":
-                attachment = request.data.get('attachment')
+                attachment = request.data.get('attachment') 
                 output = request.data.get('output')
             if request.method == "GET":
                 output = output
@@ -153,3 +171,4 @@ class CaseViewSet(viewsets.ModelViewSet):
                 return Response({"resultCode": 0, 'errorDescription': [msg]}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"resultCode": 0, 'errorDescription': ['ObjectDoesNotExist or not owner']}, status=status.HTTP_400_BAD_REQUEST)
+
