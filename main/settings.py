@@ -29,7 +29,6 @@ DEBUG = int(os.getenv('DEBUG', default=0))
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(' ')
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -220,3 +219,5 @@ CELERY_TIMEZONE = "Europe/Lisbon"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_RESULT_EXTENDED = True
+
+AUTHORIZED_IPS_LIST = os.getenv('AUTHORIZED_IPS_LIST')

@@ -1,8 +1,6 @@
 from rest_framework import permissions
 from django.conf import settings
 
-from apps.users.models import User
-
 class IsAuthenticated(permissions.IsAuthenticated):
     """
     Ensure user is authenticated.
@@ -25,16 +23,13 @@ class HasAdminRole(permissions.BasePermission):
 
 class IpAdressPermission(permissions.BasePermission):
     """
-    Ensure the request's IP address is the same as user ipAddress.
+    Ensure the request's IP address is authorized.
     """
     def has_permission(self, request, view):
-        remote_addr = request.META['REMOTE_ADDR']
-        try:
-            user = User.objects.get(id=request.user.id)
-            if remote_addr == user.ipAddress:
+        #remote_addr = request.META['REMOTE_ADDR']
+        remote_addr = request.META.get('HTTP_X_FORWARDED_FOR') or request.META['REMOTE_ADDR']
+        for ip in settings.AUTHORIZED_IPS_LIST:
+            if remote_addr == ip or remote_addr.startswith(ip):
                 return True
-            else:
-                return False
-        except:
-            return False
+        return False
         

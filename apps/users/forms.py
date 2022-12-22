@@ -9,7 +9,7 @@ class UserRegisterForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ['email', 'username', 'role', 'ipAddress']
+        fields = ['email', 'username', 'role']
         help_texts = {
             'password1': '',
             'password2': ''
@@ -32,13 +32,10 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'ipAddress']
+        fields = ['email', 'username']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['ipAddress'].widget.attrs['readonly'] = True
-        self.fields['ipAddress'].widget.attrs['hidden'] = True
-        self.fields['ipAddress'].label = ''
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:

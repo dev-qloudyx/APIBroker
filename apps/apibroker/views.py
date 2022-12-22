@@ -99,8 +99,8 @@ class CaseViewSet(viewsets.ModelViewSet):
     This viewset provides `list`, `create`, `retrieve`.
     """
     serializer_class = CaseSerializer
-    authentication_classes = [TokenAuthentication] #[IsAuthenticated, IpAdressPermission]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication] 
+    permission_classes = [IsAuthenticated] #[IsAuthenticated, IpAdressPermission]
     filter_backends = [filters.SearchFilter]
     search_fields = ['caseFile', 'caseNumber',
                      'customerKey', 'plateNumber']
@@ -138,7 +138,7 @@ class CaseViewSet(viewsets.ModelViewSet):
         case = CaseSystem.get_case_list(user=request.user)
         serializer = CaseListSerializer(
             instance=case, many=True, context={'request': request}) # Data serialization
-        if (serializer.data and self.request.user.role == 1):
+        if (serializer.data):
             return Response({"resultCode": 1, "Result": serializer.data}, status=status.HTTP_200_OK)
         elif (serializer.data and not self.request.user.role == 1):
             copy_serializer = serializer.data

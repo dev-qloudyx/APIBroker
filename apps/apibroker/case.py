@@ -48,19 +48,19 @@ class CaseHelper():
         else:
             try:
                 user = DmsBsmsInstanceManager.objects.get(owner_id=kwargs['user'].id)
-                case = CaseInstanceManager.objects.filter(operator_id=user.operatorId)
+                case = CaseInstanceManager.objects.filter(customerId=user.customerId)
                 return case
             except:
                 case = None
                 return case
 
     # Data Retrieve
-    def get_case_by_operatorId(**kwargs):
+    def get_case_by_filter(**kwargs):
         try:
             kwargs.pop('request')
             user = DmsBsmsInstanceManager.objects.get(owner_id=kwargs['owner'].id)
             kwargs.pop('owner')
-            kwargs['operatorId'] = user.operatorId
+            kwargs['customerId'] = user.customerId
             case = CaseInstanceManager.objects.filter(**kwargs).order_by('-created')
             return case
         except:
@@ -71,8 +71,7 @@ class CaseHelper():
     def get_case_pk(*args, **kwargs):
         try:
             user = DmsBsmsInstanceManager.objects.get(owner_id=kwargs['owner'].id)
-            case = CaseInstanceManager.objects.filter(
-                id=kwargs['id'], operatorId=user.operatorId)
+            case = CaseInstanceManager.objects.filter(id=kwargs['id'], customerId=user.customerId)
             return case
         except:
             case = None
@@ -298,20 +297,20 @@ class CaseSystem(CaseCore):
     
     def last_case_id_by_filter(*args, **kwargs):
         """
-        Return the last case id associated with user/operatorId filtered by POST data
+        Return the last case id associated with user/filter filtered by POST data
         """
         if (kwargs['request'].data.get('plateNumber') and not kwargs['request'].data.get('caseNumber')):
             kwargs['plateNumber'] = kwargs['request'].data.get('plateNumber')
-            case = CaseSystem.get_case_by_operatorId(**kwargs)
+            case = CaseSystem.get_case_by_filter(**kwargs)
             return case 
         elif (kwargs['request'].data.get('caseNumber') and not kwargs['request'].data.get('plateNumber')):
             kwargs['caseNumber'] = kwargs['request'].data.get('caseNumber')
-            case = CaseSystem.get_case_by_operatorId(**kwargs)
+            case = CaseSystem.get_case_by_filter(**kwargs)
             return case 
         elif (kwargs['request'].data.get('plateNumber') and kwargs['request'].data.get('caseNumber')):
             kwargs['plateNumber'] = kwargs['request'].data.get('plateNumber')
             kwargs['caseNumber'] = kwargs['request'].data.get('caseNumber')
-            case = CaseSystem.get_case_by_operatorId(**kwargs)
+            case = CaseSystem.get_case_by_filter(**kwargs)
             return case 
         else:
             case = None

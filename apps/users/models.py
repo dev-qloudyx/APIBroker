@@ -38,7 +38,6 @@ class User(AbstractBaseUser):
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
     role = models.PositiveSmallIntegerField(
         choices=roles.TYPES, default=roles.USER)
-    ipAddress = models.GenericIPAddressField(verbose_name='IPAddress', default='', blank=True, null=True)
     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
