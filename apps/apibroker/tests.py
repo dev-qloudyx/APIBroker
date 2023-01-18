@@ -14,11 +14,11 @@ import codecs
 class LoginTestCase(APITestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='solera@solera.com', email='solera@solera.com', password='a123456789b')
+        self.user = User.objects.create_user(username='test@test.com', email='test@test.com', password='a123456789b')
 
     def test_login(self):
         # Encode the username and password
-        auth = codecs.encode(f'solera@solera.com:a123456789b'.encode(), 'base64')
+        auth = codecs.encode(f'test@test.com:a123456789b'.encode(), 'base64')
         auth = auth.strip()
         self.client.defaults['HTTP_AUTHORIZATION'] = f'Basic {auth.decode()}'
 
@@ -45,19 +45,19 @@ class CaseViewSetTest(APITestCase):
     # Test Case for calculation service
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='solera@solera.com', email='solera@solera.com', password='a123456789b')
+        self.user = User.objects.create_user(username='test@test.com', email='test@test.com', password='a123456789b')
         #update user role
         User.objects.filter(pk=self.user.pk).update(role=19)
         #refresh user instance
         self.user.refresh_from_db()
-        auth = codecs.encode(f'solera@solera.com:a123456789b'.encode(), 'base64')
+        auth = codecs.encode(f'test@test.com:a123456789b'.encode(), 'base64')
         auth = auth.strip()
         self.client.defaults['HTTP_AUTHORIZATION'] = f'Basic {auth.decode()}'
         
         self.valid_payload = {
-            "originId": "TRANQUIL",
+            "originId": "COMPANY",
             "operatorId": "AF15295",
-            "customerId": "TRANQUIL",
+            "customerId": "COMPANY",
             "caseNumber":"123456789",
             "plateNumber":"PT-AX-99",
             "extReferenceNumber": "1A2X3F4H5A6D7G83R9",
@@ -105,22 +105,22 @@ class CaseViewSetTest(APITestCase):
 class CaseListViewTest(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = User.objects.create_user(username='solera@solera.com',email='solera@solera.com', password='a123456789b')
+        self.user = User.objects.create_user(username='test@test.com',email='test@test.com', password='a123456789b')
          
         # update user role and associate user to an dmsbsms
-        DmsBsmsInstanceManager.objects.create(originId='TRANQUIL', operatorId='AF15295', customerId='TRANQUIL', owner=self.user)
+        DmsBsmsInstanceManager.objects.create(originId='COMPANY', operatorId='AF15295', customerId='COMPANY', owner=self.user)
         User.objects.filter(pk=self.user.pk).update(role=29)
     
         # refresh user instance
         self.user.refresh_from_db()
-        auth = codecs.encode(f'solera@solera.com:a123456789b'.encode(), 'base64')
+        auth = codecs.encode(f'test@test.com:a123456789b'.encode(), 'base64')
         auth = auth.strip()
         self.client.defaults['HTTP_AUTHORIZATION'] = f'Basic {auth.decode()}'
         
         self.valid_payload = {
-            "originId": "TRANQUIL",
+            "originId": "COMPANY",
             "operatorId": "AF15295",
-            "customerId": "TRANQUIL",
+            "customerId": "COMPANY",
             "caseNumber":"123456789",
             "plateNumber":"PT-AX-99",
             "extReferenceNumber": "1A2X3F4H5A6D7G83R9",
@@ -135,11 +135,10 @@ class CaseListViewTest(APITestCase):
         request.user = self.user
         view = CaseViewSet.as_view({'get': 'list'})
         response = view(request)
-        print(response.data['Result'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['resultCode'], 1)
         self.assertEqual(len(response.data['Result']), 1)
-        self.assertEqual(response.data['Result'][0]['owner'], 'solera@solera.com')
+        self.assertEqual(response.data['Result'][0]['owner'], 'test@test.com')
 
     def test_list_cases_no_cases(self):
         response_token = self.client.post('/api/auth/login/')
