@@ -219,6 +219,8 @@ CELERY_TIMEZONE = "Europe/Lisbon"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_RESULT_EXTENDED = True
+CELERY_TASK_ROUTES = {
+    'apps.apibroker.tasks.save_to_db': {'queue': 'apibroker1'},
+}
 
 CSRF_TRUSTED_ORIGINS = [os.getenv('CSRF_TRUSTED_ORIGINS'),'https://*.127.0.0.1'] #Django 4 up!
-#AUTHORIZED_IPS_LIST = os.getenv('AUTHORIZED_IPS_LIST')
