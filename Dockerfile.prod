@@ -2,13 +2,13 @@
 FROM python:3.8-alpine as builder
 
 # directory for the 'app' user
-RUN mkdir -p /home/app
+RUN mkdir -p /home/api-broker
 # create the 'app' user
 RUN addgroup -S app && adduser -S app -G app
 
 # create the appropriate directories and set work directory
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/web
+ENV HOME=/home/api-broker
+ENV APP_HOME=/home/api-broker/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/staticfiles
 RUN mkdir $APP_HOME/media
